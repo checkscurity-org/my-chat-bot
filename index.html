@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bangk Bot Chat</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 50px; }
+        #chatLog { border: 1px solid #ccc; padding: 15px; width: 350px; height: 300px; overflow-y: scroll; margin-bottom: 10px; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h2>คุยกับบอท Bangk</h2>
+    <div id="chatLog"></div>
+    <div>
+        <input type="text" id="userInput" placeholder="พิมพ์ข้อความที่นี่...">
+        <button onclick="sendMessage()">ส่ง</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("userInput");
+            const log = document.getElementById("chatLog");
+            const msg = input.value;
+            if (!msg) return;
+
+            log.innerHTML += \`<p><b>คุณ:</b> \${msg}</p>\`;
+            
+            try {
+                const response = await fetch("https://my-chat-bot-8.onrender.com/api/chat", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer my-secret-key-123" 
+                    },
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const data = await response.json();
+                log.innerHTML += \`<p><b>บอท:</b> \${data.reply}</p>\`;
+            } catch (error) {
+                log.innerHTML += \`<p style="color:red;"><b>ระบบ:</b> เชื่อมต่อบอทไม่ได้</p>\`;
+            }
+            
+            input.value = "";
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>
