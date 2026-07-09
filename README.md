@@ -1,12 +1,11 @@
-import os
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+import os
 
 app = FastAPI()
 
-# เปิดการเชื่อมต่อจากทุกที่เพื่อให้ Odoo เข้าถึงได้
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,28 +16,12 @@ app.add_middleware(
 class ChatIn(BaseModel):
     message: str
 
-# ฐานความรู้ของบอท
-bot_personality = {
-    "สวัสดี": "สวัสดีครับ! ยินดีต้อนรับสู่ bangk ผมคือบอทอัจฉริยะที่ถูกสร้างขึ้นเอง มีอะไรให้ช่วยไหมครับ?",
-    "ราคา": "สินค้าของเราเริ่มต้นที่ 500 บาทครับ ถ้าสนใจชิ้นไหนสอบถามเพิ่มเติมได้เลย!",
-    "ติดต่อ": "สามารถส่งอีเมลมาได้ที่ info@yourcompany.example.com หรือโทร 555-555-5556 ครับ",
-    "บอทชื่ออะไร": "ผมไม่มีชื่อครับ แต่ผมพร้อมบริการคุณตลอด 24 ชั่วโมงในฐานะทีมงานของ bangk"
-}
-
 @app.post("/api/chat")
-def chat(payload: ChatIn, authorization: str = Header(None)):
-    # ตรวจสอบรหัสผ่านที่ต้องตรงกับ JavaScript ใน Odoo
+async def chat(payload: ChatIn, authorization: str = Header(None)):
     if authorization != "Bearer my-secret-key-123":
         raise HTTPException(status_code=401, detail="Unauthorized")
-    
-    reply = bot_personality.get(payload.message, "น่าสนใจครับ! แต่ในฐานะบอทของ bangk ผมอาจจะยังไม่เข้าใจคำถามนี้ ลองถามเรื่องสินค้าหรือติดต่อดูนะครับ")
-    return {"reply": reply}
+    return {"reply": "สวัสดีครับ! ผมบอทจาก Bangk พร้อมช่วยเหลือครับ"}
 
 if __name__ == "__main__":
-    # ใช้ Port ที่ Render จัดให้โดยอัตโนมัติ
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
-from flask_cors import CORS
-app = Flask(__name__)
-CORS(app) # เพิ่มบรรทัดนี้หลังสร้าง app
-
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
