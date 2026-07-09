@@ -8,6 +8,7 @@ import uvicorn
 
 app = FastAPI()
 
+# เปิดการเชื่อมต่อจากทุกที่เพื่อให้ Odoo เข้าถึงได้
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,6 +19,7 @@ app.add_middleware(
 class ChatIn(BaseModel):
     message: str
 
+# ฐานความรู้ของบอท
 bot_personality = {
     "สวัสดี": "สวัสดีครับ! ยินดีต้อนรับสู่ bangk ผมคือบอทอัจฉริยะที่ถูกสร้างขึ้นเอง มีอะไรให้ช่วยไหมครับ?",
     "ราคา": "สินค้าของเราเริ่มต้นที่ 500 บาทครับ ถ้าสนใจชิ้นไหนสอบถามเพิ่มเติมได้เลย!",
@@ -27,12 +29,14 @@ bot_personality = {
 
 @app.post("/api/chat")
 def chat(payload: ChatIn, authorization: str = Header(None)):
+    # ตรวจสอบรหัสผ่านที่ต้องตรงกับ JavaScript ใน Odoo
     if authorization != "Bearer my-secret-key-123":
         raise HTTPException(status_code=401, detail="Unauthorized")
     
-    reply = bot_personality.get(payload.message, "น่าสนใจครับ! แต่ผมอาจจะยังไม่เข้าใจคำถามนี้ ลองถามเรื่องสินค้าหรือติดต่อดูนะครับ")
+    reply = bot_personality.get(payload.message, "น่าสนใจครับ! แต่ในฐานะบอทของ bangk ผมอาจจะยังไม่เข้าใจคำถามนี้ ลองถามเรื่องสินค้าหรือติดต่อดูนะครับ")
     return {"reply": reply}
 
 if __name__ == "__main__":
+    # ใช้ Port ที่ Render จัดให้โดยอัตโนมัติ
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
