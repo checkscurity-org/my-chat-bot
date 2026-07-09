@@ -38,3 +38,7 @@ if __name__ == "__main__":
     # ใช้ Port ที่ Render จัดให้โดยอัตโนมัติ
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+from flask_cors import CORS
+app = Flask(__name__)
+CORS(app) # เพิ่มบรรทัดนี้หลังสร้าง app
+
